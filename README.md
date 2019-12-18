@@ -1,5 +1,15 @@
 # README
 
+* 第1章で作成したアプリのリポジトリ<br>
+https://github.com/kawa-2/environment
+
+* 第2章で作成したアプリのリポジトリ<br>
+https://github.com/kawa-2/toy_app
+
+* 第3章で作成したアプリのリポジトリ<br>
+https://github.com/kawa-2/sample_app
+
+
 ## 第1章
 
 #### 学習事項
@@ -29,7 +39,8 @@ sudo chown <user名>:admin /usr/local/include
 
 #### メモ
 
-Heroku https://rails-environment.herokuapp.com/
+* Heroku https://rails-environment.herokuapp.com/
+* 第1章で作成したアプリのリポジトリ　https://github.com/kawa-2/environment
 
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------
@@ -90,8 +101,9 @@ Rails4以前
  $ rake db:migrate
 ```
 
-* このリポジトリのHeroku 
-https://enigmatic-citadel-01574.herokuapp.com/
+* このリポジトリのHeroku https://enigmatic-citadel-01574.herokuapp.com/
+
+* 第2章で作成したアプリのリポジトリ　https://github.com/kawa-2/toy_app
 
 ------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------
@@ -206,7 +218,8 @@ $ rails test
 * sample_appのHeroku <br>
 https://still-river-30792.herokuapp.com/
 
-
+* 第3章で作成したアプリのリポジトリ<br>
+https://github.com/kawa-2/sample_app
 
 
 
