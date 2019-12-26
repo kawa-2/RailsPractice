@@ -485,3 +485,123 @@ split(配列)にする必要がわからない<br>
 
 
 
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
+## 第5章
+
+### 概要
+
+レイアウトを作成。
+Bootstrapを組み込み、第4章までで作成したアプリにスタイルを追加。
+さらにパーシャル、Railsのルーティング、Asset Pipelineについて学習。
+
+### 学習事項
+
+* 条件付きコメント<br>
+Microsoft Internet Explorer (IE) のバージョンが9より小さい場合 (if lt IE 9) にのみ、下記行を実行。<br>
+IEのバージョンが9未満の場合にのみHTML5 shimを読み込める。<br>
+```
+<!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/r29/html5.min.js">
+      </script>
+<![endif]-->
+```
+
+* Asset Pipeline<br>
+JavaScriptやCSSのアセットを最小化 (スペースや改行を詰めるなど＝minify) または圧縮して連結するもの<br>
+アセットディレクトリ、マニフェストファイル、プリプロセッサエンジンという、3つの主要な機能が理解の対象となる。
+
+* アセットディレクトリ<br>
+Railsのアセットパイプラインでは、静的ファイルを目的別に分類する、標準的な３つのディレクトリが使われている。<br>
+・app/assets: 現在のアプリケーション固有のアセット<br>
+・lib/assets: あなたの開発チームによって作成されたライブラリ用のアセット<br>
+・vendor/assets: サードパーティのアセット
+
+* マニフェストファイル<br>
+アセットディレクトリに配置されたCSSとJavaScriptのファイルをどのようにまとめるか指示するもの<br>
+→実際に処理を行うのはSprocketsというgem<br>
+※CSSとJavaScriptには適用されますが、画像ファイルには適用されない。
+```
+・アプリケーション固有のCSS用マニフェストファイル
+app/assets/stylesheets/application.css
+----------
+*= require_tree .
+# app/assets/stylesheetsディレクトリ (サブディレクトリを含む) 中のすべてのCSSファイルが、アプリケーションCSSに含まれるようにしています。
+*= require_self
+# CSSの読み込みシーケンスの中で、application.css自身もその対象に含めています。
+```
+
+* プリプロセッサエンジン<br>
+それぞれのファイルを読み込んで（ブラウザが読み込めるように）変換する仕組み<br>
+プリプロセッサエンジンは、繋げて実行する (chain) ことができる。
+```
+foobar.js.erb.coffee
+上の拡張子の場合は、CoffeeScriptとERbの両方で実行されます (コードは右から左へと実行されますので、この例ではCoffeeScriptが最初に実行されます)。
+```
+
+* ルーティング<br>
+ルートURLを定義すると、root_pathやroot_urlといったメソッドを通してURLを参照することができる。<br>
+前者はルートURL以下の文字列を、後者は完全なURLの文字列を返します。
+```
+root_path -> '/'
+root_url  -> 'http://www.example.com/'
+```
+
+* 名前付きルート<br>
+名前付きルート（○○_path）<br>
+ルーティング用のファイル (config/routes.rb) で設定
+
+* getルールを使って名前付きルートを定義
+```
+#routes.rbでgetルールを使って定義（helpページの例）
+get 'static_pages/help'
+#↑これを　こうする↓
+get  '/help', to: 'static_pages#help'
+#getリクエストが　/helpに送信されたとき,　static_pagesコントローラーの　helpアクションが　呼び出される
+ 
+#上記を定義することで名前付きルートが使えるようになる
+help_path -> '/help'
+help_url  -> 'https://○○○○○.vfs.cloud9.ap-northeast-1.amazonaws.com/help'
+```
+
+
+* リンクのテスト<br>
+リンクテストを自動化<br>
+統合テストを使うと、アプリケーションの動作を端から端まで (end-to-end) シミュレートしてテストすることができる。
+```
+1.ルートURL (Homeページ) にGETリクエストを送る.
+2.正しいページテンプレートが描画されているかどうか確かめる.
+3.Home、Help、About、Contactの各ページへのリンクが正しく動くか確かめる.
+```
+```
+・assert_templateメソッド
+assert_template後にあるURLがビューを描画しているかをテストする。
+```
+```
+・assert_selectメソッド
+assert_select "a[href=?]", root_path, count: 2
+特定のリンクが存在するかどうかを確認
+Railsは自動的にはてなマーク "?" をabout_pathに置換
+countでリンクのコスも調べられる
+```
+
+
+* Rakeタスクとは<br>
+Rakeタスクとは、ターミナルなどのコマンドライン上からアプリケーションを実行できる機能の一つ。<br>
+```
+今回のアプリで統合テストが通るかのコマンド
+$ rails test:integration
+```
+Rakeとは：Rubyで書かれたビルドツール（プログラムを制御・統合するもの）
+
+
+### 覚えておくと使えそう
+
+* 画像をダウンロードする
+$ curl -o app/assets/images/rails.png -OL railstutorial.jp/rails.png
+
+
+### メモ
+* Heroku https://still-river-30792.herokuapp.com/
+* 第4章で使用したアプリのリポジトリ　https://github.com/kawa-2/sample_app
