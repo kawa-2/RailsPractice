@@ -480,7 +480,7 @@ split(配列)にする必要がわからない<br>
 
 #### メモ
 
-* Heroku https://rails-environment.herokuapp.com/
+* Heroku https://still-river-30792.herokuapp.com/
 * 第4章で使用したアプリのリポジトリ　https://github.com/kawa-2/sample_app
 
 
