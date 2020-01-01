@@ -606,3 +606,116 @@ $ curl -o app/assets/images/rails.png -OL railstutorial.jp/rails.png
 ### メモ
 * Heroku https://still-river-30792.herokuapp.com/
 * 第4章で使用したアプリのリポジトリ　https://github.com/kawa-2/sample_app
+
+
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
+## 第6章
+
+### 概要
+
+ユーザー登録ページを作成。
+本章では、ユーザー用のデータモデルの作成と、データを保存する手段の確保について学習。
+バリデーションでデータに関して文字数制限等加えることが可能。
+また、セキュアなパスワードの追加方法についても学習。
+
+
+### 学習事項
+
+* Railsでは、データモデルとして扱うデフォルトのデータ構造のことをモデル (Model) と呼ぶ
+
+* Active Record<br>
+データベースとやりとりをするデフォルトのRailsライブラリ。<br>
+データオブジェクトの作成/保存/検索のためのメソッドを持っている。
+
+* Userモデルを生成(例)<br>
+$ rails generate model User name:string email:string<br>
+※コントローラ名には複数形 Users モデル名には単数形 User を用いる。<br>
+※マイグレーションファイルも生成される。
+```
+(usersテーブルを作るための) Userモデルのマイグレーション
+db/migrate/[timestamp]_create_users.rb
+
+class CreateUsers < ActiveRecord::Migration[5.0]
+  def change
+    create_table :users do |t|
+      t.string :name
+      t.string :email
+
+      t.timestamps
+    end
+  end
+end
+
+・t.timestampsコマンド
+created_atとupdated_atのマジックカラムを作成
+```
+
+* コンソールでのモデルの生成<br>
+User.new
+
+* コンソールでのモデルの保存<br>
+user.save
+
+* コンソールでのモデルの生成＆保存<br>
+User.create
+
+* Active Recordでの、オブジェクトを検索方法
+
+1)<br>
+User.find(3)<br>
+id=3のユーザー<br>
+2)<br>
+User.find_by(email: "mhartl@example.com")<br>
+3)<br>
+User.first<br>
+データベースの最初のユーザー<br>
+4)<br>
+User.all<br>
+すべてのUserオブジェクトが返ってくる
+
+
+* データベース更新方法<br>
+1)<br>
+・例)user.email = "mhartl@example.net"<br>
+上記変更をデータベースに保存するためには最後に、user.save を実行する<br>
+2)<br>
+・user.update_attributes(name: "The Dude", email: "dude@abides.org")<br>
+成功時には更新と保存を続けて同時に行う<br>
+
+
+* バリデーション<br>
+制約を課すことが可能。<br>
+・存在性 (Presence)、長さ (length)の検証、フォーマット (format)の検証、一意性 (uniqueness)の検証を今回行なった。
+
+* ユーザーの認証<br>
+認証が行われる手順：パスワードの送信、ハッシュ化、データベース内のハッシュ化された値との比較。
+
+* セキュアなパスワード<br>
+セキュアなパスワードを実装するのに必要なhas_secure_password(パスワードをハッシュ化)を使えるようにするには、<br>
+password_digest属性をモデルに追加し、Gemfileにbcryptを追加する<br>
+
+
+### 覚えておきたいコマンド
+
+* マイグレーション実行コマンド
+```
+$ rails db:migrate
+```
+
+* サンドボックスモード
+```
+$ rails console --sandbox
+```
+変更をコンソール終了時に取り消してくれる
+
+
+### メモ
+
+* HerokuでUserモデルを使用する為には、Heroku上でもマイグレーションを走らせる必要がある<br>
+```
+$ heroku run rails db:migrate
+```
+
+
