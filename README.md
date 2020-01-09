@@ -718,4 +718,274 @@ $ rails console --sandbox
 $ heroku run rails db:migrate
 ```
 
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
+
+## 第7章
+
+### 概要
+
+* ユーザー登録機能を追加。<br>
+* webページにフォームを作成し登録情報を送信可能に。<br>
+* ユーザーを新規作成しユーザー情報をデータベースに保存。<br>
+* 作成されたユーザーのプロフィールページを作成。<br>
+* ユーザー登録失敗・成功テスト。<br>
+* 本番環境のSSL化。
+
+
+### 学習事項
+
+* デバック情報をレイアウトに表示させる方法(開発環境でのみ)<br>
+```
+<%= debug(params) if Rails.env.development? %>
+※トラブルが発生してそうなコードの近くに仕込む
+```
+
+* RESTfulなUsersリソースで必要となるすべてのアクションが利用できるようにするには<br>
+Usersリソースをconfig/routes.rbに追加する<br>
+記述：resources :users
+
+* デフォルトでは、ヘルパーファイルで定義されているメソッドは自動的にすべてのビューで利用できる。
+
+
+* 埋め込みRuby<br>
+```
+埋め込みRuby記述
+<%= f.label :name %>
+<%= f.text_field :name %>
+
+HTMLに展開された場合
+<label for="user_name">Name</label>
+<input id="user_name" name="user[name]" type="text" />
+```
+
+* SSLを有効化
+
+本番環境用の設定ファイル config/environments/production.rb に
+「本番環境ではSSLを使うようにする」という下記記述する
+```
+config.force_ssl = true
+```
+
+
+### メソッド
+
+* any?<br>
+要素が1つでもある場合はtrue、ない場合はfalseを返す。
+empty?とは逆。
+
+* content_tag<br>
+htmlタグを生成することができる。
+
+* params変数<br>
+Railsで送られてきた値を受け取るためのメソッド
+
+* yメソッド<br>
+yml形式でオブジェクトの中身を出力できる
+
+* putsメソッドを使ってparamsハッシュの中身をYAML形式で表示<br>
+puts a.to_yaml
+
+* flashメソッド<br>
+何かの処理を行った際に『ログインに成功しました。』などwebページに表示するメッセージ<br>
+4つのスタイルをもつ　：success、info、warning、danger<br>
+※通常コントローラーからビューに変数を渡す時は変数の頭に@を付けるルールがあるが、flashメッセージには不要
+
+
+
+### メモ
+
+* 環境について<br>
+```
+$ rails console,$ rails serverのデフォルト環境はdevelopment(開発環境)
+$ rails console testとすればテスト環境になる
+$ rails server --environment productionとすれば本番サーバーとなる
+$ rails db:migrateは本番環境
+$ heroku run rails consoleは本番環境
+```
+
+* /users に対してHTTPのPOSTリクエスト送信する、といった指示<br>
+```
+<form action="/users" class="new_user" id="new_user" method="post">
+```
+
+
+* データベースリセット<br>
+```
+$ rails db:migrate:reset
+```
+
+
+
+
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
+
+## 第8章
+
+### 概要
+* webサイトでユーザーがログインやログアウトを行えるようにする。<br>
+※ブラウザがログインしている状態を保持し、ユーザーによってブラウザが閉じられたら状態を破棄するといった仕組み (認証システム (Authentification System))<br>
+* ログインフォームで無効な値を送信した場合の処理の実装。<br>
+* ログイン中の状態での有効な値の送信をフォームで扱えるようにする。
+
+
+### 学習事項
+
+
+* ログインページ<br>
+ログインページではnewで新しいセッションを出力し、そのページでログインするとcreateでセッションを実際に作成して保存し、ログアウトするとdestroyでセッションを破棄する、といった仕組み。
+
+* GET login_pathとPOST login_pathの違い<br>
+GET login_path： "/login"へアクセスされた際に"session#new"アクションを実行。<br>
+POST login_path： "session#create"アクションの情報を"/login"へ送信。
+
+* ユーザーのブラウザ内の一時cookiesに暗号化済みのユーザーIDが自動で作成する<br>
+sessions_helper.rbに下記の通り記載<br>
+```
+ # 渡されたユーザーでログインする
+  def log_in(user)
+    session[:user_id] = user.id
+  end
+```
+
+* flashとflash.nowの違い<br>
+・flash  ：redirect_toを使う場合に設定<br>
+・flash.now  ：renderを使う場合に設定。<br>
+レンダリングが終わっているページで特別にフラッシュメッセージを表示することができる。<br>
+flash.nowはflashとは異なり、リクエストが発生したときに消滅する。
+
+
+
+* ヘルパーモジュールについて<br>
+Railsの全コントローラの親クラスであるApplicationコントローラに<br>
+各viewで使用するヘルパーのモジュールを読み込ませれば、どのコントローラーでも使えるようになる。
+```
+[例]
+ApplicationコントローラにSessionヘルパーモジュールを読み込ませる
+app/controllers/application_controller.rb
+上記ファイルに下記コードを記述
+include SessionsHelper
+```
+
+
+### メソッド
+
+* session<br>
+session[:user_id] = user.id
+このコードを実行すると、ユーザーのブラウザ内の一時cookiesに暗号化済みのユーザーIDが自動で作成される。
+cookiesメソッドとは対照的に、sessionメソッドで作成された一時cookiesは、ブラウザを閉じた瞬間に有効期限が終了する。
+
+
+* find<br>
+idの検索を行える
+
+* find_by<br>
+idの値がなくてもnilを返す。返ってくる結果は最初にヒットした1件のみ。<br>
+※id及びid以外の条件が分かっている場合、その条件に該当する最初のデータを取得したい場合に使用する。
+
+
+
+### コマンド
+
+
+* 現状のルーティングを確認することができる。<br>
+```
+$ rails routes
+```
+
+* grepコマンド<br>
+ファイルに特定の文字列が存在するか検索するときに使える。<br>
+```
+$ grep 検索文字列 ファイル名
+```
+※パイプ（｜）と組み合わせて、他のコマンドの出力結果から必要な箇所だけを絞り込んで表示する際によく使われる。<br>
+ファイルは指定しなくてもOK
+
+
+### メモ
+
+
+* 認可モデル (Authorization Model)<br>
+ユーザー限定ページなど、制限や制御の仕組みのこと。
+
+* セッション<br>
+HTTPはステートレス (Stateless) なプロトコル。<br>
+HTTPのリクエスト１つ１つは、それより前のリクエストの情報をまったく利用できない、独立したトランザクションとして扱われる。<br>
+セッションはHTTPプロトコルと階層が異なる (上の階層にある) ので、HTTPの特性とは別に (若干影響は受けるものの) 接続を確保できる。<br>
+ユーザーのパソコンのWebブラウザとRailsサーバーなど に別途設定
+
+* cookies<br>
+ユーザーのブラウザに保存される小さなテキストデータ。<br>
+あるページから別のページに移動した時にも破棄されないので、ここにユーザーIDなどの情報を保存できる。
+
+
+
+### 苦戦したところ
+
+* digestメソッドの理解<br>
+以下、digestメソッド実装の細かな流れメモ<br>
+```
+---
+・自分でfixtureファイルを作成してデータを追加する
+
+有効な名前とメールアドレス、パスワードを用意する
+Sessionsコントローラのcreateアクションに送信されたパスワードと比較できるようにする必要もある
+→password_digest属性をユーザーのfixtureに追加
+
+---
+・digestメソッドを独自に定義する
+has_secure_passwordでbcryptパスワードが作成されるので、同じ方法でfixture用のパスワードを作成します。
+
+
+---
+#secure_passwordのソースコードのパスワード生成部分
+#string→ハッシュ化する文字列　cost→ハッシュを算出するための計算コスト
+BCrypt::Password.create(string, cost: cost)
+ 
+#テスト中は最小で本番環境ではしっかりなコストパラメータの計算的な事
+cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST :
+                                              BCrypt::Engine.cost
+---
+↓
+上記を利用したfixture向けのdigestメソッドをUserモデルに追加
+app/models/user.rb
+---
+  # 渡された文字列のハッシュ値を返す
+  def User.digest(string)
+    cost = ActiveModel::SecurePassword.min_cost ? BCrypt::Engine::MIN_COST :
+                                                  BCrypt::Engine.cost
+    BCrypt::Password.create(string, cost: cost)
+  end
+---
+↓
+digestメソッドを定義したので有効なユーザーを表すfixtureが作成できるようになる<br>
+
+↓
+test/fixtures/users.yml
+---
+michael:
+  name: Michael Example
+  email: michael@example.com
+  #fixtureではERbを利用できる
+  password_digest: <%= User.digest('password') %>
+---
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
