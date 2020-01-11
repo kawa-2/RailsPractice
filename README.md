@@ -1132,6 +1132,72 @@ $ rails db:seed
 
 
 
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
+## 第11章
+
+### 概要
+
+* ユーザーアカウントの有効化
+* Mailerを使ってのメール送信システムの実装
+* SendGridを使用し本番環境でアカウント有効化実行
+
+
+### 学習事項
+
+* アカウントの有効化の実装手順<br>
+本当にそのメールアドレスの持ち主なのかどうかを確認できるようにする。<br>
+[実装手順]<br>
+(1) ユーザーの初期状態は「有効化されていない」(unactivated) にしておく。<br>
+(2) ユーザー登録が行われたときに、有効化トークンと、それに対応する有効化ダイジェストを生成する。<br>
+(3) 有効化ダイジェストはデータベースに保存しておき、有効化トークンはメールアドレスと一緒に、<br>
+　　ユーザーに送信する有効化用メールのリンクに仕込んでおく。<br>
+(4) ユーザーがメールのリンクをクリックしたら、アプリケーションはメールアドレスをキーにしてユーザーを探し、<br>
+　　データベース内に保存しておいた有効化ダイジェストと比較することでトークンを認証する。<br>
+(5) ユーザーを認証できたら、ユーザーのステータスを「有効化されていない」から「有効化済み」(activated) に変更する。<br><br>
+※注意するポイント※<br>
+ユーザーがメールで送られてきた認証URLをクリックすれば、ブラウザで普通にクリックしたときと同じなので、<br>
+(updateアクションで使うPATCHリクエストではなく) GETリクエストになってしまう。<br>
+そのため、ユーザーからのGETリクエストを受けるために、(本来であればupdateのところを)editアクションに変更する。
+
+
+* メールプレビュー<br>
+Railsでは、特殊なURLにアクセスするとメールのメッセージをその場でプレビューすることができる<br>
+メールを送信しなくても確認できるので便利。<br>
+アプリケーションのdevelopment環境の設定に下記コードを追加<br>
+```
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.delivery_method = :test
+  host = 'localhost:3000' # ローカル環境の場合。
+  config.action_mailer.default_url_options = { host: host, protocol: 'https' }
+```
+
+
+### つまづいた箇所
+
+* 本番環境でのユーザー登録を行うとエラーが出て、アカウント有効化のメールが送れず。<br>
+Herokuへのデプロイがこけていたのか、 heroku restartを行なったら無事実行できました。
+
+
+* リスト11.34のtestがREDになる(本来はGREENにならなければならない)<br>
+test/integration/users_login_test.rbファイル内を<br>
+第9章の演習でリスト 9.28リストのコードにしていたが<br>
+リスト11.34でrails testがREDになるのでリスト9.25のコードに戻した。<br>
+エラーメッセージは下記<br>
+```
+ERROR["test_login_with_remembering", UsersLoginTest]
+ test_login_with_remembering#UsersLoginTest (0.80s)
+NoMethodError:         NoMethodError: undefined method `remember_token' for nil:NilClass
+            test/integration/users_login_test.rb:43:in `block in <class:UsersLoginTest>'
+```
+
+
+
+
+
+
+
 
 
 
