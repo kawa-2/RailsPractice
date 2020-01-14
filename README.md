@@ -12,7 +12,7 @@ https://github.com/kawa-2/sample_app
 * 第4章以降のアプリのリポジトリ<br>
 https://github.com/kawa-2/sample_app
 
-* Heroku（本番環境）
+* Heroku（本番環境）<br>
 https://still-river-30792.herokuapp.com/
 
 
