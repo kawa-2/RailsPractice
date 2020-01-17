@@ -1353,7 +1353,55 @@ setupメソッド内で宣言しておけば、すべてのテスト内で作成
 
 
 
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
 
+## 第14章
+
+### 概要
+
+* 他のユーザーをフォロー・フォロー解除できる仕組みの追加
+* フォローしているユーザーの投稿をステータスフィードに表示する機能を追加
+
+
+学習事項
+
+* has_many through<br>
+has_many throughという関連付けでは、Railsはモデル名 (単数形) に対応する外部キーを探す。<br>
+```
+has_many :followeds, through: :active_relationships
+```
+「多対多」とは<br>
+1人のユーザーにはいくつもの「フォローする」「フォローされる」といった関係性
+```
+has_many :followeds, through: :active_relationships
+Railsは「followeds」というシンボル名を見て、これを「followed」という単数形に変え、 
+relationshipsテーブルのfollowed_idを使って対象のユーザーを取得してくる
+```
+
+*  「||=」(or equals) という代入演算子<br>
+<% @user ||= current_user %><br>
+@userがnilでない場合 (つまりプロフィールページの場合) は何もせず、nilの場合 (つまりHomeページの場合) には@userにcurrent_userを代入するコード
+
+
+* Ajax<br>
+Ajaxを使うことで、Webページからサーバーに「非同期」でページを遷移させることなくリクエストを送信することができる。<br>
+Ajaxを使ったフォーム<br>
+<%= form_for(current_user.active_relationships.build) do |f| %> に　remote: true を追加<br>
+↓<br>
+<%= form_for(current_user.active_relationships.build, remote: true) do |f| %><br>
+生成されるhtml属性 data-remote="true"<br>
+これは、JavaScriptによるフォーム操作を許可することをRailsに知らせるためのもの。<br>
+Rails2以前では、完全なJavaScriptのコードを挿入する必要があったが<br>
+現在のRailsではHTMLプロパティを使って簡単にAjaxが扱えるようになっている
+
+
+* Ajaxのテスト<br>
+xhr（Xmlhttprequestの略）で、Ajax通信かどうかを判定するオプション。<br>
+xhr:true でオプションが使えるようになる。
+
+
+* どのようにデータモデル設計を行うかが重要である。
 
 
 
