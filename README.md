@@ -1229,6 +1229,131 @@ viewファイルに記述<br>
 
 
 
+------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------
+
+## 第13章
+
+### 概要
+
+* ユーザーが短いメッセージを投稿できるようにするためのリソース「マイクロポスト」の追加
+* MicropostデータモデルとUserモデルの紐付け
+* マイクロポストを表示するために必要なフォームとその部品を作成
+* マイクロポストのアクセス制御
+* 画像投稿機能を追加
+
+
+### 学習事項
+
+* belongs_to/has_manyでモデルの関連づけが可能になる<br>
+```
+micropost.rb
+class Micropost < ApplicationRecord
+  belongs_to :user
+
+user.rb
+class User < ApplicationRecord
+  # 関連付け
+  has_many :microposts
+```
+
+* dependent: :destroy<br>
+has_many :microposts, dependent: :destroy<br>
+dependent: :destroyというオプションを使うと、ユーザーが削除されたときに、<br>
+そのユーザーに紐付いたマイクロポストも一緒に削除されるようになる。
+
+* default scope<br>
+読み出し順序を作成時間の逆順に並べられる。<br>
+引数にorderを与えれば特定の順序に変更できる<br>
+order(:created_at)こんな感じ。order(created_at: :desc) だとcreated_atを降順に並べられる
+
+* ラムダ式 (Stabby lambda) <br>
+default_scope -> { order(created_at: :desc) }<br>
+Procやlambda (もしくは無名関数)と呼ばれるオブジェクトを作成する文法。->というラムダ式は、ブロックを引数に取り、<br>
+Procオブジェクトを返す。このオブジェクトは、callメソッドが呼ばれたとき、ブロック内の処理を評価する。
+
+
+* time_ago_in_words ヘルパーメソッド<br>
+```
+<span class="timestamp">
+    Posted <%= time_ago_in_words(micropost.created_at) %> ago.
+</span>
+```
+「3分前に投稿」といった文字列を出力する<br>
+helperオブジェクトのtime_ago_in_wordsメソッドを使って、3.weeks.agoを実行するには<br>
+helper.time_ago_in_words(3.weeks.ago)
+
+* paginateメソッド<br>
+マイクロポストの関連付けを経由してmicropostテーブルに到達し、必要なマイクロポストのページを引き出す。<br>
+```
+@microposts = @user.microposts.paginate(page: params[:page])
+```
+
+* Faker gem<br>
+Faker::Lorem.sentenceは、lorem ipsumと呼ばれるダミーのテキストを返す<br>
+マイクロポストのテストを行う際に使用すると便利。
+
+* whereメソッド<br>
+基本形→ User.where(kind: 1)<br>
+kindが1のユーザーを全て取得することができる。<br>
+= User.where(‘kind = ?’, 1)
+
+* request.referer<br>
+遷移前のURLを取得する<br>
+request.referrer || root_url で元に戻すURLが見つからなかった場合でもroot_urlに戻す
+
+* CarrierWave(画像アップローダー)　Gem<br>
+投稿した画像を扱ったり、その画像をMicropostモデルと関連付けするために使用。<br>
+mini_magick →画像をリサイズしたり、本番環境で画像をアップロードするために使用。<br>
+CarrierWaveを導入すると、Railsのジェネレーターで画像アップローダーが生成できるようになる。
+
+
+
+### つまづきポイント
+
+* テストスイートでPictureUploaderがMicropostと関連づけられていないというエラーが出てしまった。<br>
+springでキャッシュされてしまっていたため、Gemfileで追加したCarrierWaveが<br>
+bundle installしても読み込まれていなかった。<br>
+springを再起動したら解消された。<br>
+```
+$ bin/spring stop
+$ bundle exec rails c
+```
+
+* mini_magickがパーミッションエラーでinstallできず<br>
+Frameworksフォルダを /usr/localに作成する権限がないとのことなのでフォルダを作成してからインストールしたら<br>
+$ brew install imagemagickが通りました。<br>
+```
+$ sudo mkdir -p /usr/local/Frameworks
+$ sudo chown -R $(whoami) /usr/local/Frameworks
+$ chmod u+w /usr/local/Frameworks
+$ brew install imagemagick
+```
+
+* マイクロポストの数が変化していないかどうかのテストコード<br>
+正しいリクエストを各アクションに向けて発行し、マイクロポストの数が変化していないかどうか<br>
+```
+assert_no_difference 'Micropost.count' do
+  post microposts_path, params: { micropost: { content: "Lorem ipsum" } }
+end
+```
+解釈<br>
+post microposts_path, params: { micropost: { content: "Lorem ipsum" } } でマイクロポストを一つ追加しているが<br>
+Micropost.count(元の数)とassert_no_difference=数が変化していない　=ポストできていない　ということになる。
+
+
+
+### 復習
+
+* setupメソッド<br>
+setupメソッド内に書かれた処理は、各テストが走る直前に実行される。<br>
+
+例)setupメソッドを使って有効なUserオブジェクト (@user) を作成<br>
+setupメソッド内で宣言しておけば、すべてのテスト内で作成したインスタンス変数が使えるようになる。
+
+
+
+
 
 
 
